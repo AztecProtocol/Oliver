@@ -1,0 +1,148 @@
+#include "constants.huff"
+
+/*  Formulae:
+ *  D = y^2
+ *  E = a*x^2
+ *  F = E+D
+ *  J = F-2*z^2
+ *  x2 = 2*x*y*J
+ *  y2 = F*(E-D)
+ *  z2 = F*J
+ */
+template <p3,p4,2p6>
+#define macro DOUBLE__PROJECTIVE = takes(3) returns(3) {
+    // x z y
+    <p3>
+    // p x z y
+    dup4 dup1 mulmod
+    // D x z y
+    <p4> dup1 dup1 dup1 dup1 dup1
+    // p p p p p p D x z y
+    dup8 dup1 mulmod A() mulmod
+    // E p p p p D x z y
+    dup1 dup7 add
+    // F E p p p p D x z y
+    swap6
+    // D E p p p p F x z y
+    dup3 sub add
+    // E-D p p p p F x z y
+    dup6 mulmod
+    // y3 p p p F x z y
+    swap7
+    // y p p p F x z y3
+    dup2 swap6
+    // x y p p p F p z y3
+    mulmod 1 shl
+    // 2xy p p F p z y3
+    swap5
+    // z p p F p 2xy y3
+    dup1 mulmod 1 shl
+    // 2z^2 p F p 2xy y3
+    <2p6> sub dup3 add
+    // J p F p 2xy y3
+    swap2
+    // F p J p 2xy y3
+    dup3 mulmod
+    // z3 J p 2xy y3
+    swap3 mulmod
+    // x3 z3 y3
+}
+
+/*  Formulae:
+ *  B = (x+y)^2
+ *  C = x^2
+ *  D = y^2
+ *  E = a*C
+ *  F = E+D
+ *  X3 = (B-C-D)*(F-2)
+ *  Y3 = F*(E-D)
+ *  T3 = (B-C-D)*(E-D)
+ *  Z3 = F*(F-2)
+ */
+#define macro DOUBLE__AFFINE_TO_EXTENDED = takes(2) returns(0) {
+    // x 1 y
+    P() dup1 dup3 dup1 mulmod dup2
+    // p C p x 1 y
+    dup1 dup3 A() mulmod
+    // E p C p x 1 y
+    dup2 dup8 dup1 mulmod dup3
+    // p D E p C p x 1 y
+    dup3 dup3 add swap5
+    // C p D E p F p x 1 y
+    dup3 add 2P() sub
+    // -C-D p D E p F p x 1 y
+    dup2 dup11 dup10 add dup1 mulmod
+    // B -C-D p D E p F p x 1 y
+    add
+    // B-C-D p D E p F p x 1 y
+    dup2 dup2 dup5 dup3 sub dup7 add mulmod P2_LOC() 0x40 add mstore
+    // B-C-D p D E p F p x 1 y
+    2 dup3 sub dup7 add
+    // F-2 B-C-D p D E p F p x 1 y
+    mulmod P2_LOC() mstore
+    // D E p F p x 1 y
+    dup3 sub add dup3 mulmod P2_LOC() 0x20 add mstore
+    // F p x 1 y
+    2 dup3 sub dup2 add mulmod P2_LOC() 0x60 add mstore
+    // x 1 y
+}
+
+/*  Formulae:
+ *  A = x^2
+ *  B = y^2
+ *  C = 2*z^2
+ *  D = a*A
+ *  E = (x+y)^2-A-B = 2*x*y
+ *  G = D+B
+ *  F = G-C
+ *  H = D-B
+ *  x2 = E*F
+ *  y2 = G*H
+ *  t2 = E*H
+ *  z2 = F*G
+ */
+// 9*mulmod
+template<p3,2p6,2p7>
+#define macro DOUBLE__PROJECTIVE_TO_EXTENDED = takes(3) returns(4) {
+    // input: x z y
+    <p3>
+    // p x z y
+    dup1 dup1 dup1 dup1 dup6 dup1 mulmod swap6
+    // z p p p p x A y
+    dup1 mulmod 1 shl swap4
+    // x p p p C A y
+    dup2 dup8 dup1 mulmod swap7
+    // y x p p p C A B
+    add dup1 mulmod
+    // (x+y)^2 p p C A B
+    dup6 dup6 add <2p7> sub add
+    // E p p C A B
+    swap4 A() mulmod
+    // D p C E B
+    dup1 dup6 add swap3
+    // C D p G E B
+    <2p6> sub dup4 add swap5
+    // B D p G E F
+    dup3 sub add
+    // H p G E F
+    dup2 dup4 dup2 dup4 dup2 dup10 dup10
+    // E F p H p G p H p G E F
+    mulmod
+    // x2 H p G p H p G E F
+    swap7
+    // G H p G p H p x2 E F
+    mulmod
+    // y2 G p H p x2 E F
+    swap7
+    // F G p H p x2 E y2
+    mulmod
+    // z2 H p x2 E y2
+    swap4
+    // E H p x2 z2 y2
+    mulmod
+    // output: t2 x2 z2 y2
+}
+
+#define macro DOUBLE__EXTENDED = takes(0) returns(0) {
+    // not used - expensive
+}

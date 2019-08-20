@@ -1,0 +1,36 @@
+#define macro P = takes(0) returns(1) { 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001 }
+#define macro 2P = takes(0) returns(1) { 0x60c89ce5c263405370a08b6d0302b0ba5067d090f372e12287c3eb27e0000002 }
+#define macro 3P = takes(0) returns(1) { 0x912ceb58a394e07d28f0d12384840917789bb8d96d2c51b3cba5e0bbd0000003 }
+#define macro A = takes(0) returns(1) { 0x292fc }
+#define macro D = takes(0) returns(1) { 0x292f8 }
+
+#define macro NUM_POINTS_LOC = takes(0) returns(1) { 0x400 }
+#define macro WNAF_START_LOC = takes(0) returns(1) { 0x420 }
+#define macro P2_LOC = takes(0) returns(1) { 0x00 } // occupies 0x60-0xe0
+#define macro Z_INV_LOC = takes(0) returns(1) { 0x440 }
+
+#define macro SCALAR_TABLE_START = takes(0) returns(1) { 0x200 }
+
+#define macro PRECOMPUTE_TABLE_START = takes(0) returns(1) {
+    0x460
+}
+
+#define macro PRECOMPUTE_TABLE_LENGTH = takes(0) returns(1) {
+    0x800
+}
+
+#define macro FUNCTION_SIGNATURE_OFFSET = takes(0) returns(1) {
+    0x00
+}
+
+#define macro GET_NUMBER_OF_POINTS = takes(0) returns(1) {
+    NUM_POINTS_LOC() mload
+}
+
+#define macro WNAF_START = takes(0) returns(1) {
+    WNAF_START_LOC() mload
+}
+
+#define macro WNAF_WIDTH = takes(0) returns(1) {
+    GET_NUMBER_OF_POINTS() 1 add 0x20 mul
+}

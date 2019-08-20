@@ -1,0 +1,229 @@
+#include "constants.huff"
+#include "double.huff"
+#include "add.huff"
+#include "modinv.huff"
+#include "precompute_table.huff"
+#include "wnaf.huff"
+#include "validate.huff"
+
+#define macro GET_P_15 = takes(0) returns(3) { dup4 0x1e0 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_14 = takes(0) returns(3) { dup4 0x1c0 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_13 = takes(0) returns(3) { dup4 0x1a0 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_12 = takes(0) returns(3) { dup4 0x180 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_11 = takes(0) returns(3) { dup4 0x160 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_10 = takes(0) returns(3) { dup4 0x140 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_9  = takes(0) returns(3) { dup4 0x120 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_8  = takes(0) returns(3) { dup4 0x100 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_7  = takes(0) returns(3) { dup4 0xe0  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_6  = takes(0) returns(3) { dup4 0xc0  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_5  = takes(0) returns(3) { dup4 0xa0  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_4  = takes(0) returns(3) { dup4 0x80  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_3  = takes(0) returns(3) { dup4 0x60  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_2  = takes(0) returns(3) { dup4 0x40  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro GET_P_1  = takes(0) returns(3) { dup4 0x20  add mload dup6 dup2 0x20 add mload swap2 mload }
+
+#define jumptable MAIN__ADDITION_JUMP_TABLE {
+    add_0  add_1  add_2  add_3  add_4
+    add_5  add_6  add_7  add_8  add_9
+    add_10 add_11 add_12 add_13 add_14
+    add_15 main__final_add
+}
+
+#define jumptable MAIN__FINAL_ADDITION_JUMP_TABLE {
+    final_add_0  final_add_1  final_add_2  final_add_3
+    final_add_4  final_add_5  final_add_6  final_add_7
+    final_add_8  final_add_9  final_add_10 final_add_11
+    final_add_12 final_add_13 final_add_14 final_add_15
+}
+
+#define macro SET_CONSTANTS = takes(0) returns(0) {
+    0x60 FUNCTION_SIGNATURE_OFFSET() calldatasize sub div
+    NUM_POINTS_LOC() mstore
+    PRECOMPUTE_TABLE_START() GET_NUMBER_OF_POINTS() PRECOMPUTE_TABLE_LENGTH() mul add 0x20 add
+    WNAF_START_LOC() mstore
+}
+
+#define macro OLIVER__MAIN = takes(0) returns(0) {
+
+    SET_CONSTANTS()
+    VALIDATE__CALLVALUE_AND_INPUT_SIZE()
+
+    WNAF_WIDTH() 0 sub
+
+    2P()
+    P()
+
+    PRECOMPUTE_TABLE__COMPUTE()
+
+    WNAF()
+    WNAF_START() WNAF_WIDTH() 256 mul add
+    // w p 2p
+
+    // x, z, y := 0, 1, 1 [Start with identity element (x,y)=(0,1)]
+    1 1 0
+    // x z y w p 2p
+
+    add_0 0x00 mstore
+    add_1 0x20 mstore
+    add_2 0x40 mstore
+    add_3 0x60 mstore
+    add_4 0x80 mstore
+    add_5 0xa0 mstore
+    add_6 0xc0 mstore
+    add_7 0xe0 mstore
+    add_8 0x100 mstore
+    add_9 0x120 mstore
+    add_10 0x140 mstore
+    add_11 0x160 mstore
+    add_12 0x180 mstore
+    add_13 0x1a0 mstore
+    add_14 0x1c0 mstore
+    add_15 0x1e0 mstore
+    main__final_add 0x200 mstore
+
+    // jump to add_n, the location of which is stored at mload(w)
+    // dup4 mload mload jump
+    dup4 mload mload jump
+    
+    add_15:
+        ADD__PROJECTIVE_NEW<GET_P_15,dup12>()
+    add_14:
+        ADD__PROJECTIVE_NEW<GET_P_14,dup12>()
+    add_13:
+        ADD__PROJECTIVE_NEW<GET_P_13,dup12>()
+    add_12:
+        ADD__PROJECTIVE_NEW<GET_P_12,dup12>()
+    add_11:
+        ADD__PROJECTIVE_NEW<GET_P_11,dup12>()
+    add_10:
+        ADD__PROJECTIVE_NEW<GET_P_10,dup12>()
+    add_9:
+        ADD__PROJECTIVE_NEW<GET_P_9,dup12>()
+    add_8:
+        ADD__PROJECTIVE_NEW<GET_P_8,dup12>()
+    add_7:
+        ADD__PROJECTIVE_NEW<GET_P_7,dup12>()
+    add_6:
+        ADD__PROJECTIVE_NEW<GET_P_6,dup12>()
+    add_5:
+        ADD__PROJECTIVE_NEW<GET_P_5,dup12>()
+    add_4:
+        ADD__PROJECTIVE_NEW<GET_P_4,dup12>()
+    add_3:
+        ADD__PROJECTIVE_NEW<GET_P_3,dup12>()
+    add_2:
+        ADD__PROJECTIVE_NEW<GET_P_2,dup12>()
+    add_1:
+        ADD__PROJECTIVE_NEW<GET_P_1,dup12>()
+    add_0:
+        DOUBLE__PROJECTIVE<dup5,dup6,dup9>()
+
+        // x z y w p 2p
+
+        // w := mload(w+0x20)
+        swap3 dup7 add swap3
+
+        // jump to add_n where n is the number of points to add for this digit
+        // stored at mload(w)
+        dup4 mload mload jump
+
+    // We handle the final addition separately, as we don't want it to be followed by a double
+    main__final_add:
+        
+        final_add_0 0x00 mstore
+        final_add_1 0x20 mstore
+        final_add_2 0x40 mstore
+        final_add_3 0x60 mstore
+        final_add_4 0x80 mstore
+        final_add_5 0xa0 mstore
+        final_add_6 0xc0 mstore
+        final_add_7 0xe0 mstore
+        final_add_8 0x100 mstore
+        final_add_9 0x120 mstore
+        final_add_10 0x140 mstore
+        final_add_11 0x160 mstore
+        final_add_12 0x180 mstore
+        final_add_13 0x1a0 mstore
+        final_add_14 0x1c0 mstore
+        final_add_15 0x1e0 mstore
+        
+        // x z y w p 2p
+        // Unlike for the other digits, the number of points to add for the last digit is stored at WNAF_START+0x20
+        // WNAF_START() 0x20 add mload mload jump
+        0x20 WNAF_START() sub mload mload jump
+
+        final_add_15:
+            ADD__PROJECTIVE_NEW<GET_P_15,dup12>()
+        final_add_14:
+            ADD__PROJECTIVE_NEW<GET_P_14,dup12>()
+        final_add_13:
+            ADD__PROJECTIVE_NEW<GET_P_13,dup12>()
+        final_add_12:
+            ADD__PROJECTIVE_NEW<GET_P_12,dup12>()
+        final_add_11:
+            ADD__PROJECTIVE_NEW<GET_P_11,dup12>()
+        final_add_10:
+            ADD__PROJECTIVE_NEW<GET_P_10,dup12>()
+        final_add_9:
+            ADD__PROJECTIVE_NEW<GET_P_9,dup12>()
+        final_add_8:
+            ADD__PROJECTIVE_NEW<GET_P_8,dup12>()
+        final_add_7:
+            ADD__PROJECTIVE_NEW<GET_P_7,dup12>()
+        final_add_6:
+            ADD__PROJECTIVE_NEW<GET_P_6,dup12>()
+        final_add_5:
+            ADD__PROJECTIVE_NEW<GET_P_5,dup12>()
+        final_add_4:
+            ADD__PROJECTIVE_NEW<GET_P_4,dup12>()
+        final_add_3:
+            ADD__PROJECTIVE_NEW<GET_P_3,dup12>()
+        final_add_2:
+            ADD__PROJECTIVE_NEW<GET_P_2,dup12>()
+        final_add_1:
+            ADD__PROJECTIVE_NEW<GET_P_1,dup12>()
+        final_add_0:
+
+        0x00 mstore
+        0x40 mstore
+        0x20 mstore
+        pop pop pop pop
+        0x60 0x00 return
+}
+
+#define macro NAIVE_GET_P = takes(0) returns(0) {
+    // 6 things on stack before i: . . . x z y i . P 2P
+    dup7 0x60 mul 0x20 add calldataload
+    dup8 0x60 mul calldataload
+}
+
+#define macro OLIVER__MAIN_NAIVE = takes(0) returns(0) {
+    VALIDATE__CALLVALUE_AND_INPUT_SIZE()
+    0x60 FUNCTION_SIGNATURE_OFFSET() calldatasize sub div
+    NUM_POINTS_LOC() mstore
+    2P()
+    P()
+    255
+    0
+    1 1 0
+    
+    naive_main_loop:
+    DOUBLE__PROJECTIVE<dup6,dup7,dup10>()
+    naive_next_point:
+    dup4 0x60 mul 0x40 add calldataload dup6 shr 1 and iszero naive_skip_add jumpi
+    ADD__PROJECTIVE<NAIVE_GET_P,dup6,dup12>()
+    naive_skip_add:
+    swap3 1 add swap3
+    dup4 GET_NUMBER_OF_POINTS() gt naive_next_point jumpi
+    swap4 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff add swap4
+    dup5 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff eq naive_finish jumpi
+    swap3 pop 0 swap3
+    naive_main_loop jump
+
+    naive_finish:
+    0x00 mstore
+    0x40 mstore
+    0x20 mstore
+    0x60 0x00 return
+
+}

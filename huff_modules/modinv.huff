@@ -1,0 +1,163 @@
+#include "constants.huff"
+#include "modinvhelpers.huff"
+
+/* p-2 = 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593efffffff
+       = 0b1100000110010001001110011100101110000100110001101000000010100110
+           1110000101000001000101101101101000000110000001010110000101110100
+           1010000011001111101000010010000111100110111001011100001001000101
+           00001111100001111101011001001111101111111111111111111111111111
+       = 0b110000     48
+           011        3
+           0010001    17
+           00111      7
+           00111      7   *last 7
+           0010111    23
+           00001      1
+           0011       3
+           0001101    13
+           0000000101 5
+           0011011    27
+           1          1
+           0000101    5
+           0000010001 17  *last 17
+           011011     27
+           01101      13  *last 13
+           00000011   3
+           0000001    1
+           01011      11
+           000010111  23
+           01         1
+           00101      5
+           0000011    3   *last 3
+           0011111    31
+           01         1
+           00001001   9
+           00001111   15
+           0011011    27  *last 27
+           1          1   *last 1
+           0010111    23  *last 23
+           00001001   9
+           000101     5   *last 5
+           000011111  31
+           000011111  31
+           01011      11  *last 11
+           001001     9   *last 9
+           1111       15
+           01111      15
+           1111       15  *last 15
+           11111      31
+           11111      31
+           11111      31
+           11111      31  *last 31
+    Thus we need 1 3 5 7 9 11 13 15 17 23 27 31
+    in this order:
+                 7 17 13 3 27 1 23 5 11 9 15 31
+*/
+
+#define macro MODINV__INITIALISE_PRIMES = takes(1) returns(12) {
+    // z
+    P() dup1 dup1 dup1 dup1 dup1 swap6
+    // z p p p p p p
+    dup2 dup1 dup1 dup1 dup1
+    // p p p p p z p p p p p p
+}
+
+#define macro MODINV__CREATE_LOOKUP_CHAIN = takes(1) returns(14) {
+    MODINV__INITIALISE_PRIMES()
+    // p p p p p z p p p p p p
+    dup1 dup7 dup1 mulmod
+    // z2 p p p p p z p p p p p p
+    dup2 dup2 dup1 mulmod swap1
+    // z2 z4 p p p p p z p p p p p p
+    dup3 dup2 dup10 mulmod swap6
+    // p z2 z4 p p p z3 p z p p p p p p
+    dup2 dup8 mulmod swap10
+    // p z2 z4 p p p z3 p z p z5 p p p p
+    dup2 dup12 mulmod swap3
+    // p z2 z4 z7 p p z3 p z p z5 p p p p
+    dup2 dup5 mulmod swap12
+    // p z2 z4 z7 p p z3 p z p z5 p z9 p p
+    dup2 dup14 mulmod swap11
+    // p z2 z4 z7 p p z3 p z p z5 z11 z9 p p
+    dup2 dup13 mulmod swap5
+    // p z2 z4 z7 p z13 z3 p z p z5 z11 z9 p p
+    dup2 dup7 mulmod swap13
+    // p z2 z4 z7 p z13 z3 p z p z5 z11 z9 z15 p
+    dup2 dup15 mulmod swap4
+    // p z2 z4 z7 z17 z13 z3 p z p z5 z11 z9 z15 p
+    dup1 swap2 dup4 mulmod
+    // z6 p z4 z7 z17 z13 z3 p z p z5 z11 z9 z15 p
+    dup5 mulmod swap8
+    // p z4 z7 z17 z13 z3 p z z23 z5 z11 z9 z15 p
+    dup2 dup10 mulmod swap6
+    // p z4 z7 z17 z13 z3 z27 z z23 z5 z11 z9 z15 p
+    swap1 dup7 mulmod swap12
+    // p z7 z17 z13 z3 z27 z z23 z5 z11 z9 z15 z31
+    dup1 dup4 dup15 mulmod
+    // z48 p z7 z17 z13 z3 z27 z z23 z5 z11 z9 z15 z31
+}
+
+#define macro MODINV__SQUARE_AND_MULTIPLY = takes(14) returns(1) {
+    // z48 p z7 z17 z13 z3 z27 z z23 z5 z11 z9 z15 z31
+    GET_4_P<dup2>() SQR_3()
+    // t p p z7...
+    dup7 mulmod
+    GET_8_P<dup2>() SQR_7() dup5 mulmod // 17
+    GET_6_P<dup2>() SQR_5() dup4 mulmod // 7
+    GET_5_P<dup2>() SQR_5() dup2 swap3 mulmod // last 7
+    // t p z17 z13 z3 z27 z z23 z5 z11 z9 z15 z31
+    GET_8_P<dup2>() SQR_7() dup9 mulmod // 23
+    GET_6_P<dup2>() SQR_5() dup8 mulmod // 1
+    GET_5_P<dup2>() SQR_4() dup6 mulmod // 3
+    GET_8_P<dup2>() SQR_7() dup5 mulmod // 13
+    GET_11_P<dup2>() SQR_10() dup10 mulmod // 5
+    GET_8_P<dup2>() SQR_7() dup7 mulmod // 27
+    GET_2_P<dup2>() SQR_1() dup8 mulmod // 1
+    GET_8_P<dup2>() SQR_7() dup10 mulmod // 5
+    GET_10_P<dup2>() SQR_10() dup2 swap3 mulmod // last 17
+    // t p z13 z3 z27 z z23 z5 z11 z9 z15 z31
+    GET_7_P<dup2>() SQR_6() dup6 mulmod // 27
+    GET_5_P<dup2>() SQR_5() dup2 swap3 mulmod // last 13
+    // t p z3 z27 z z23 z5 z11 z9 z15 z31
+    GET_9_P<dup2>() SQR_8() dup4 mulmod // 3
+    GET_8_P<dup2>() SQR_7() dup6 mulmod // 1
+    GET_6_P<dup2>() SQR_5() dup9 mulmod // 11
+    GET_10_P<dup2>() SQR_9() dup7 mulmod // 23
+    GET_3_P<dup2>() SQR_2() dup6 mulmod // 1
+    GET_6_P<dup2>() SQR_5() dup8 mulmod // 5
+    GET_7_P<dup2>() SQR_7() dup2 swap3 mulmod // last 3
+    // t p z27 z z23 z5 z11 z9 z15 z31
+    GET_8_P<dup2>() SQR_7() dup11 mulmod // 31
+    GET_3_P<dup2>() SQR_2() dup5 mulmod // 1
+    GET_9_P<dup2>() SQR_8() dup9 mulmod // 9
+    GET_9_P<dup2>() SQR_8() dup10 mulmod // 15
+    GET_7_P<dup2>() SQR_7() dup2 swap3 mulmod // last 27
+    // t p z z23 z5 z11 z9 z15 z31
+    GET_1_P<dup2>() SQR_1() dup2 swap3 mulmod // last 1
+    // t p z23 z5 z11 z9 z15 z31
+    GET_7_P<dup2>() SQR_7() dup2 swap3 mulmod // last 23
+    // t p z5 z11 z9 z15 z31
+    GET_9_P<dup2>() SQR_8() dup6 mulmod // 9
+    GET_6_P<dup2>() SQR_6() dup2 swap3 mulmod // last 5
+    // t p z11 z9 z15 z31
+    GET_10_P<dup2>() SQR_9() dup7 mulmod // 31
+    GET_10_P<dup2>() SQR_9() dup7 mulmod // 31
+    GET_5_P<dup2>() SQR_5() dup2 swap3 mulmod // last 11
+    // t p z9 z15 z31
+    GET_6_P<dup2>() SQR_6() dup2 swap3 mulmod // last 9
+    // t p z15 z31
+    GET_5_P<dup2>() SQR_4() dup4 mulmod // 15
+    GET_6_P<dup2>() SQR_5() dup4 mulmod // 15
+    GET_4_P<dup2>() SQR_4() dup2 swap3 mulmod // last 15
+    // t p z31
+    GET_6_P<dup2>() SQR_5() dup4 mulmod // 31
+    GET_6_P<dup2>() SQR_5() dup4 mulmod // 31
+    GET_6_P<dup2>() SQR_5() dup4 mulmod // 31
+    GET_5_P<dup2>() SQR_5() swap1 swap2 mulmod // last 31
+    // z^-1
+}
+
+#define macro MODINV = takes(1) returns(1) {
+    MODINV__CREATE_LOOKUP_CHAIN()
+    MODINV__SQUARE_AND_MULTIPLY()
+}

@@ -1,0 +1,374 @@
+#include "constants.huff"
+#include "add.huff"
+#include "double.huff"
+#include "modinv.huff"
+#include "validate.huff"
+
+#define macro PRECOMPUTE_TABLE__COMPUTE_POSITIVES = takes(4) returns(0) {
+    // Stores P in the lookup table, then calculates 3P, 5P, 7P, 9P,
+    // 11P, 13P, and 15P and stores them in the lookup table.
+    // Stack: x 1 y p i
+    dup1 dup6 mstore
+    dup3 dup6 0x20 add mstore
+    swap1 dup5 0x60 add mstore
+    mulmod dup2 0x40 add mstore
+    // i
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 3P
+    0x80 add
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 5P
+    0x80 add
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 7P
+    0x80 add
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 9P
+    0x80 add
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 11P
+    0x80 add
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 13P
+    0x80 add
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 15P
+}
+
+template<pointNum1,pointNum2>
+#define macro PRECOMPUTE_TABLE__CALC_Z_PRODUCT = takes(0) returns(1) {
+    // For a point P, finds (3P.z * 5P.z * ... * 15P.z) and stores it
+    // in SCALAR_TABLE, leaving a copy on the stack.
+    PRECOMPUTE_TABLE_START() <pointNum1> PRECOMPUTE_TABLE_LENGTH() mul add
+    0xe0 add dup4
+    // p &z3
+    dup2 mload
+    // p z3 p &z3
+    dup2 dup4 0x80 add mload
+    dup2 dup6 0x100 add mload
+    dup2 dup8 0x180 add mload
+    dup2 dup10 0x200 add mload
+    dup2 dup12 0x280 add mload
+    dup13 0x300 add mload
+    mulmod mulmod mulmod mulmod mulmod mulmod
+    swap1 pop
+    dup1 SCALAR_TABLE_START() <pointNum2> 0x20 mul add mstore
+}
+
+#define macro PRECOMPUTE_TABLE__3_SF = takes(0) returns(2) {
+    // Finds the factor by which 3P must be scaled to become affine.
+    // p gz^-1 i- i+ i c
+    dup5 0x60 add dup2 // p j
+    dup2 mload // P1.z p j
+    dup2 dup4 0x100 add mload dup2 dup6 0x180 add mload
+    dup2 dup8 0x200 add mload dup2 dup10 0x280 add mload
+    dup2 dup12 0x300 add mload dup13 0x380 add mload
+    mulmod mulmod mulmod mulmod mulmod mulmod
+    // zzzzzz j
+    dup9 swap2 pop dup4 mulmod
+    // z3sf p gz^-1 i- i+ i c
+}
+
+#define macro PRECOMPUTE_TABLE__5_7_SF = takes(0) returns(4) {
+    // Finds the factors by which 5P and 7P must be scaled to become affine.
+
+    // Q: ... But why do we calculate 2 scale factors at once?
+    // A: Because sf5 = gz^-1 * z3 * z7 * z9 * z11 * z13 * z15
+    //        and sf7 = gz^-1 * z3 * z5 * z9 * z11 * z13 * z15.
+    //    But if we first find sf57 := gz^-1 * z3 * z9 * z11 * z13 * z15,
+    //    we can use sf5 = sf57 * z7, and sf7 = sf57 * z5.
+    //    This uses 7 multiplications rather than 12 !
+
+    // p gz^-1 i- i+ i c
+    dup5 0x60 add dup2 dup1 dup1
+    // z1 p p p j p gz^-1 i- i+ i c
+    dup4 0x80 add mload dup2 dup6 0x200 add mload
+    dup2 dup8 0x280 add mload dup2 dup10 0x300 add mload
+    dup11 0x380 add mload
+    mulmod mulmod mulmod mulmod
+    // z1*z3*z9*z11*z13*z15 p p j p gz^-1 i- i+ i c
+    dup2 dup1 dup3 dup2 dup8 0x100 add mload dup11 mulmod mulmod
+    // sf7 p z1*z3*z9*z11*z13*z15 p p j p gz^-1 i- i+ i c
+    swap5
+    // j p z1*z3*z9*z11*z13*z15 p p sf7 p gz^-1 i- i+ i c
+    0x180 add mload dup8 mulmod mulmod
+    // sf5 p sf7 p gz^-1 i- i+ i c
+}
+
+#define macro PRECOMPUTE_TABLE__9_11_SF = takes(0) returns(4) {
+    // Finds the factors by which 9P and 11P must be scaled to become affine.
+    // p gz^-1 i- i+ i c
+    dup5 0x60 add dup2 dup1 dup1
+    dup4 0x80 add mload dup2 dup6 0x100 add mload
+    dup2 dup8 0x180 add mload dup2 dup10 0x300 add mload
+    dup11 0x380 add mload
+    mulmod mulmod mulmod mulmod
+    dup2 dup1 dup3 dup2 dup8 0x200 add mload dup11 mulmod mulmod
+    swap5
+    0x280 add mload dup8 mulmod mulmod
+    // sf9 p sf11 p gz^-1 i- i+ i c
+}
+
+#define macro PRECOMPUTE_TABLE__13_15_SF = takes(0) returns(4) {
+    // p gz^-1 i- i+ i c
+    dup5 0x60 add dup2 dup1 dup1
+    // z1 p p p j p gz^-1 i- i+ i c
+    dup4 0x80 add mload dup2 dup6 0x100 add mload
+    dup2 dup8 0x180 add mload dup2 dup10 0x200 add mload
+    dup11 0x280 add mload
+    mulmod mulmod mulmod mulmod
+    // z1*z3*...*z11 p p j p gz^-1 i- i+ i c
+    dup2 dup1 dup3 dup2 dup8 0x300 add mload dup11 mulmod mulmod
+    // sf15 p z1*z3*...*z11 p p j p gz^-1 i- i+ i c
+    swap5
+    // j p z1*z3*...*z11 p p sf15 p gz^-1 i- i+ i c
+    0x380 add mload dup8 mulmod mulmod
+    // sf13 p sf15 p gz^-1 i- i+ i c
+}
+
+#define macro PRECOMPUTE_TABLE__COMPUTE_1_NEGATIVE = takes(1) returns(0) {
+    // p gz^-1 i- i+ i c
+    dup4 mload dup2 sub dup4 mstore
+    dup4 0x20 add mload dup4 0x20 add mstore
+    pop
+}
+
+#define macro PRECOMPUTE_TABLE__RESCALE_POINT_AND_COMPUTE_NEGATIVE_FIRST = takes(2) returns(0) {
+    // Rescales the point at i+ by dz and stores its negative at i-
+    // when the stack looks like this:
+    // dz p dz' p gz^-1 i- i+ i ...
+    dup2 dup2 dup9 mload mulmod dup1 dup9 mstore dup3 sub dup7 mstore
+    dup7 0x20 add mload mulmod dup1 dup7 0x20 add mstore dup5 0x20 add mstore
+}
+
+#define macro PRECOMPUTE_TABLE__RESCALE_POINT_AND_COMPUTE_NEGATIVE = takes(2) returns(0) {
+    // Rescales the point at i+ by dz and stores its negative at i-
+    // when the stack looks like this:
+    // dz p gz^-1 i- i+ i ...
+    dup2 dup2 dup7 mload mulmod dup1 dup7 mstore dup3 sub dup5 mstore
+    dup5 0x20 add mload mulmod dup1 dup5 0x20 add mstore dup3 0x20 add mstore
+}
+
+#define jumptable PRECOMPUTE_TABLE__JUMP_TABLE_1 {
+    point_0 point_1 point_2 point_3 point_4
+    point_5 point_6 point_7 point_8 point_9
+    point_10 point_11 point_12 point_13 point_14
+}
+
+#define jumptable PRECOMPUTE_TABLE__JUMP_TABLE_2 {
+    _point_0 _point_1 _point_2 _point_3 _point_4
+    _point_5 _point_6 _point_7 _point_8 _point_9
+    _point_10 _point_11 _point_12 _point_13 _point_14
+}
+
+#define macro PRECOMPUTE_TABLE__RESCALE_POSITIVES_AND_COMPUTE_NEGATIVES = takes(0) returns(0) {
+    dup1
+    dup1 0x780 add
+    // i- i+ i c
+    // i points to the start of the lookup table entry for this point
+    // i+ does too, but it will be used to iterate over the positive multiples 1P, 3P, ..., 15P.
+    // (i+0x00 to i+0x380)
+    // i- will be used to iterate over the negative multiples -15P, -13P, ..., -P.
+    // (i+0x780 to i+0x400)
+
+    // Define gz_P = P.z * 3P.z * ... * 15P.z for input point P
+    // Then Z_INV = (gz_P_1 * gz_P_2 * ... * gz_P_n)^-1 = product(gz_P for P in input points)^-1
+    // So (gz_P)^-1 = Z_INV * product(gz_Q for input points Q other than P)
+    // This bit of code finds gz^-1 := (gz_P)^-1 for this P.
+    // ----------------------------------------------------------------------------------
+
+    __tablesize(PRECOMPUTE_TABLE__JUMP_TABLE_1) __tablestart(PRECOMPUTE_TABLE__JUMP_TABLE_1) 0x00 codecopy
+
+    // For point m, (gz_P_m)^-1 = Z_INV * gz_P_1 * ... * gz_P_(m-1) * gz_P_(m+1) * ... * gz_P_n
+
+    // First, get Z_INV
+    Z_INV_LOC() mload
+
+    // Then, multiply it by (gz_P_1 * ... * gz_P_(m-1))
+    dup5 0x20 mul mload jump
+    point_14:
+        SCALAR_TABLE_START() 0x1a0 add mload dup7 swap2 mulmod
+    point_13:
+        SCALAR_TABLE_START() 0x180 add mload dup7 swap2 mulmod
+    point_12:
+        SCALAR_TABLE_START() 0x160 add mload dup7 swap2 mulmod
+    point_11:
+        SCALAR_TABLE_START() 0x140 add mload dup7 swap2 mulmod
+    point_10:
+        SCALAR_TABLE_START() 0x120 add mload dup7 swap2 mulmod
+    point_9:
+        SCALAR_TABLE_START() 0x100 add mload dup7 swap2 mulmod
+    point_8:
+        SCALAR_TABLE_START() 0xe0 add mload dup7 swap2 mulmod
+    point_7:
+        SCALAR_TABLE_START() 0xc0 add mload dup7 swap2 mulmod
+    point_6:
+        SCALAR_TABLE_START() 0xa0 add mload dup7 swap2 mulmod
+    point_5:
+        SCALAR_TABLE_START() 0x80 add mload dup7 swap2 mulmod
+    point_4:
+        SCALAR_TABLE_START() 0x60 add mload dup7 swap2 mulmod
+    point_3:
+        SCALAR_TABLE_START() 0x40 add mload dup7 swap2 mulmod
+    point_2:
+        SCALAR_TABLE_START() 0x20 add mload dup7 swap2 mulmod
+    point_1:
+        SCALAR_TABLE_START() mload dup7 swap2 mulmod
+    point_0:
+
+    __tablesize(PRECOMPUTE_TABLE__JUMP_TABLE_2) __tablestart(PRECOMPUTE_TABLE__JUMP_TABLE_2) 0x00 codecopy
+
+    // Next, multiply by (gz_P_(m+1) * ... * gz_P_n)
+    // zzz i- i+ i c
+    dup5 1 GET_NUMBER_OF_POINTS() sub sub // rhymes with JubJub... ha
+    0x20 mul mload jump
+
+    // zzz i- i+ i c
+    _point_14:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x1c0 add mload dup7 swap2 mulmod
+    _point_13:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x1a0 add mload dup7 swap2 mulmod
+    _point_12:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x180 add mload dup7 swap2 mulmod
+    _point_11:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x160 add mload dup7 swap2 mulmod
+    _point_10:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x140 add mload dup7 swap2 mulmod
+    _point_9:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x120 add mload dup7 swap2 mulmod
+    _point_8:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x100 add mload dup7 swap2 mulmod
+    _point_7:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0xe0 add mload dup7 swap2 mulmod
+    _point_6:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0xc0 add mload dup7 swap2 mulmod
+    _point_5:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0xa0 add mload dup7 swap2 mulmod
+    _point_4:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x80 add mload dup7 swap2 mulmod
+    _point_3:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x60 add mload dup7 swap2 mulmod
+    _point_2:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x40 add mload dup7 swap2 mulmod
+    _point_1:
+        SCALAR_TABLE_START() dup6 0x20 mul add 0x20 add mload dup7 swap2 mulmod
+    _point_0:
+
+    // Thus we have Z_INV * gz_P_1 * ... * gz_P_(m-1) * gz_P_(m+1) * ... * gz_P_n
+    // = gz_P^-1 for this point P
+
+    // -----------------------------------------------------------------------------
+
+    // Now that we have gz^-1 we can rescale our points and find their negatives.
+
+    // Store -P at location i-.
+    // stack: gz^-1 i- i+ i c
+    dup6 PRECOMPUTE_TABLE__COMPUTE_1_NEGATIVE()
+    // stack: gz^-1 i- i+ i c
+    
+    // Find the factor sf3 by which 3P must be rescaled to become affine.
+    dup6 PRECOMPUTE_TABLE__3_SF()
+    // stack: sf3 p gz^-1 i- i+ i c
+    // Increment i+ and decrement i- so they point to 3P and -3P respectively.
+    swap3 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80 add swap3
+    swap4 0x80 add swap4
+    // Rescale 3P (stored at i+) by sf3 and subsequently store -3P at i-.
+    PRECOMPUTE_TABLE__RESCALE_POINT_AND_COMPUTE_NEGATIVE()
+
+    // Now do this for 5P and 7P.
+    // stack: gz^-1 i- i+ i c
+    // Find the factors sf5 and sf7 by which 5P and 7P need to be scaled to become affine.
+    dup6 PRECOMPUTE_TABLE__5_7_SF()
+    // stack: sf5 p sf7 p gz^-1 i- i+ i c
+    // Have i+ and i- point to 5P and -5P respectively.
+    swap5 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80 add swap5
+    swap6 0x80 add swap6
+    // Rescale 5P (stored at i+) by sf5 and store -5P at i-.
+    PRECOMPUTE_TABLE__RESCALE_POINT_AND_COMPUTE_NEGATIVE_FIRST()
+    // Now do the same for 7P.
+    swap3 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80 add swap3
+    swap4 0x80 add swap4
+    PRECOMPUTE_TABLE__RESCALE_POINT_AND_COMPUTE_NEGATIVE()
+
+    // And do the same thing for 9P & 11P, and 13P & 15P.
+
+    // stack: gz^-1 i- i+ i c
+    dup6 PRECOMPUTE_TABLE__9_11_SF()
+    // stack: sf9 p sf11 p gz^-1 i- i+ i c
+    swap5 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80 add swap5
+    swap6 0x80 add swap6
+    PRECOMPUTE_TABLE__RESCALE_POINT_AND_COMPUTE_NEGATIVE_FIRST()
+    swap3 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80 add swap3
+    swap4 0x80 add swap4
+    PRECOMPUTE_TABLE__RESCALE_POINT_AND_COMPUTE_NEGATIVE()
+
+    // stack: gz^-1 i- i+ i c
+    dup6 PRECOMPUTE_TABLE__13_15_SF()
+    // stack: sf13 p sf15 p gz^-1 i- i+ i c
+    swap5 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80 add swap5
+    swap6 0x80 add swap6
+    PRECOMPUTE_TABLE__RESCALE_POINT_AND_COMPUTE_NEGATIVE_FIRST()
+    swap3 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80 add swap3
+    swap4 0x80 add swap4
+    PRECOMPUTE_TABLE__RESCALE_POINT_AND_COMPUTE_NEGATIVE()
+
+    pop pop pop
+}
+
+#define macro PRECOMPUTE_TABLE__COMPUTE = takes(0) returns(0) {
+    // First, compute the positive multiples (1P, 3P through 15P) of each point P
+    // and store them in our lookup table
+    0
+    precompute_table__next_point_1:
+
+        PRECOMPUTE_TABLE_START() dup2 PRECOMPUTE_TABLE_LENGTH() mul add
+        dup3
+        // p i c
+        0x60 dup4 mul 0x20 add FUNCTION_SIGNATURE_OFFSET() add calldataload
+        1
+        0x60 dup6 mul FUNCTION_SIGNATURE_OFFSET() add calldataload
+        // x 1 y p i c
+        VALIDATE__POINT_ON_CURVE()
+        DOUBLE__AFFINE_TO_EXTENDED()
+        // x 1 y p i c
+        PRECOMPUTE_TABLE__COMPUTE_POSITIVES()
+        pop
+    
+    1 add
+    GET_NUMBER_OF_POINTS() dup2 lt precompute_table__next_point_1 jumpi
+    pop
+
+    // Next, calculate 3P.z * 5P.z * ... * 15P.z for each input point P,
+    // multiplying all of these together as well to get a product of all
+    // the z-coords in our lookup table.
+    0
+    PRECOMPUTE_TABLE__CALC_Z_PRODUCT<0,0>()
+    GET_NUMBER_OF_POINTS() 1 eq only_1_point_skip jumpi
+    precompute_table__next_point_2:
+
+        swap1 1 add swap1
+        PRECOMPUTE_TABLE__CALC_Z_PRODUCT<dup3,dup5>()
+        dup4 swap2 mulmod
+
+    GET_NUMBER_OF_POINTS() dup3 1 add lt precompute_table__next_point_2 jumpi
+    only_1_point_skip:
+
+    // We then take the modular multiplicative inverse of this value and store
+    // it at GLOBAL_Z_LOC.
+    // Later, we'll need 1/z for each precomputed point's z value.
+    // But in fact it's quicker to calculate Z_INV = 1/(z_1*z_2*...*z_n) and to use
+    // 1/z_a = Z_INV * z_1 * z_2 * z_(a-1) * z_(a+1) * ... * z_n
+    // for a in 1, ... , n
+    // than to calculate 1/z_1, 1/z_2, etc separately, because MODINV() is so expensive.
+    MODINV()
+    Z_INV_LOC() mstore
+    pop
+
+    // Now that we have Z_INV we can rescale each point by its z value
+    // so that it is affine. This entails dividing the x and y coordinates by z.
+    // We also need to find the negative of each point in our lookup table
+    // and store it in memory.
+    0
+    precompute_table__next_point_3:
+
+        PRECOMPUTE_TABLE_START() dup2 PRECOMPUTE_TABLE_LENGTH() mul add
+        PRECOMPUTE_TABLE__RESCALE_POSITIVES_AND_COMPUTE_NEGATIVES()
+        pop
+
+    1 add
+    GET_NUMBER_OF_POINTS() dup2 lt precompute_table__next_point_3 jumpi
+    pop
+}

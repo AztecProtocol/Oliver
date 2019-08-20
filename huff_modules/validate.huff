@@ -1,0 +1,35 @@
+#include "constants.huff"
+
+#define macro VALIDATE__CALLVALUE_AND_INPUT_SIZE = takes(0) returns(0) {
+    callvalue
+    0x60 FUNCTION_SIGNATURE_OFFSET() calldatasize sub mod
+    or iszero callvalue_and_input_size_valid jumpi
+    400 0x00 mstore
+    0x20 0x00 revert
+    callvalue_and_input_size_valid:
+}
+
+#define macro VALIDATE__POINT_ON_CURVE = takes(4) returns(4) {
+    // expect stack state: x 1 y p ...
+    dup4 dup2 dup1 mulmod
+    // xx x 1 y p
+    dup5 dup1 D() dup2 dup1 dup9 dup1 mulmod
+    // yy p d p p xx x 1 y p
+    dup2 dup2
+    // yy p yy p d p p xx x 1 y p
+    dup2 dup9 A() mulmod
+    // axx yy p yy p d p p xx x 1 y p
+    addmod
+    // axx+yy yy p d p p xx x 1 y p
+    swap6
+    // xx yy p d p p axx+yy x 1 y p
+    mulmod mulmod
+    // dxxyy p axx+yy x 1 y p
+    1 addmod
+    // 1+dxxyy axx+yy x 1 y p
+    eq point_is_on_curve jumpi
+        400 0x00 mstore
+        0x20 0x00 revert
+    point_is_on_curve:
+    // x 1 y p ...
+}

@@ -1,0 +1,183 @@
+#include "constants.huff"
+
+template<precomputeLoc,bitOffset,wnafAddrOffset,wnafWidth5>
+#define macro WNAF__SLICE = takes(0) returns(0) {
+    // i n w ww
+    <wnafAddrOffset> add
+    swap1
+    <bitOffset> shr
+    // n i w ww
+    dup1 0x1f and
+    // r n i w ww
+    dup1 6 shl <precomputeLoc> add
+    // s r n i w ww
+    dup5 dup5 add
+    // &c s r n i w ww
+    dup1 mload 0x20 add
+    // c+1 &c s r n i w ww
+    dup1 dup3
+    // &c c+1 c+1 &c s r n i w ww
+    mstore add mstore
+    // r n i w ww
+    dup1 16 lt swap2 sub 5 shr add swap1
+    // i n' w ww
+    <wnafWidth5> add
+    // i' n' w ww
+}
+
+template<precomputeLoc,wnafWidth5>
+#define macro WNAF__SLICE_1 = takes(0) returns(0) {
+    swap1
+    // n i w ww
+    dup1 0x1f and
+    // r n i w ww
+    dup1 6 shl <precomputeLoc> add
+    // s r n i w ww
+    dup5 dup5 add
+    // &c s r n i w ww
+    dup1 mload 0x20 add
+    // c+1 &c s r n i w ww
+    dup1 dup3
+    // &c c+1 c+1 &c s r n i w ww
+    mstore add mstore
+    // r n i w ww
+    dup1 16 lt swap2 sub 5 shr add swap1
+    // i n' w ww
+    <wnafWidth5> add
+    // i' n' w ww
+}
+
+template<calldataLoc,precomputeLoc>
+#define macro WNAF__COMPUTE = takes(0) returns(1) {
+    <calldataLoc> calldataload 0
+    // i n &w WW 2WW 3WW 4WW 5WW
+
+    ends_with_0000 0x00  mstore // 0000
+    ends_with_1    0x20  mstore // 0001
+    ends_with_10   0x40  mstore // 0010
+    ends_with_1    0x60  mstore // 0011
+    ends_with_100  0x80  mstore // 0100
+    ends_with_1    0xa0  mstore // 0101
+    ends_with_10   0xc0  mstore // 0110
+    ends_with_1    0xe0  mstore // 0111
+    ends_with_1000 0x100 mstore // 1000
+    ends_with_1    0x120 mstore // 1001
+    ends_with_10   0x140 mstore // 1010
+    ends_with_1    0x160 mstore // 1011
+    ends_with_100  0x180 mstore // 1100
+    ends_with_1    0x1a0 mstore // 1101
+    ends_with_10   0x1c0 mstore // 1110
+    ends_with_1    0x1e0 mstore // 1111
+
+    // Check the last 4 digits of n and jump to the corresponding ends_with_* destination.
+    dup2 0xf and 5 shl mload jump
+
+    ends_with_0000:
+        // The last 4 digits of n are 0.
+        // This might be because n is zero, in which case we are done.
+        dup2 iszero end jumpi
+        // Otherwise, n has 1s somewhere before the last 4 digits, so we
+        // increment i by 4*WNAF_WIDTH and shift n to the right by 4 bits.
+        dup7 add swap1
+        4 shr swap1
+        // Now check the next 4 digits.
+        dup2 0xf and 5 shl mload jump
+
+    ends_with_1:
+        // The last digit of n is a 1.
+        // Compute the wnaf entry for this digit, shift n to the right 5 bits,
+        // and increment i by 5*WNAF_WIDTH.
+        WNAF__SLICE_1<precomputeLoc,dup8>()
+        // Now check the next 4 digits.
+        dup2 0xf and 5 shl mload jump
+
+    ends_with_10:
+        // The last digit is a 0, with a 1 before it.
+        // Therefore we shift n to the right by 1 bit and increment i by
+        // WNAF_WIDTH before computing the next wnaf entry.
+        WNAF__SLICE<precomputeLoc,1,dup4,dup8>()
+        dup2 0xf and 5 shl mload jump
+
+    ends_with_100:
+        WNAF__SLICE<precomputeLoc,2,dup5,dup8>()
+        dup2 0xf and 5 shl mload jump
+
+    ends_with_1000:
+        WNAF__SLICE<precomputeLoc,3,dup6,dup8>()
+        dup2 0xf and 5 shl mload jump
+
+    end:
+    
+    pop pop
+}
+
+#define macro WNAF = takes(0) returns(1) {
+
+    wnaf__1_point   0x20  mstore
+    wnaf__2_points  0x40  mstore
+    wnaf__3_points  0x60  mstore
+    wnaf__4_points  0x80  mstore
+    wnaf__5_points  0xa0  mstore
+    wnaf__6_points  0xc0  mstore
+    wnaf__7_points  0xe0  mstore
+    wnaf__8_points  0x100 mstore
+    wnaf__9_points  0x120 mstore
+    wnaf__10_points 0x140 mstore
+    wnaf__11_points 0x160 mstore
+    wnaf__12_points 0x180 mstore
+    wnaf__13_points 0x1a0 mstore
+    wnaf__14_points 0x1c0 mstore
+    wnaf__15_points 0x1e0 mstore
+
+    WNAF_WIDTH() 5 mul
+    WNAF_WIDTH() 2 shl
+    WNAF_WIDTH() 3 mul
+    WNAF_WIDTH() 1 shl
+    WNAF_WIDTH()
+    WNAF_START()
+
+    GET_NUMBER_OF_POINTS() 0x20 mul mload jump
+    
+    wnaf__15_points:
+        WNAF__COMPUTE<0x40+0x60*14,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*14-0x40>()
+    wnaf__14_points:
+        WNAF__COMPUTE<0x40+0x60*13,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*13-0x40>()
+    wnaf__13_points:
+        WNAF__COMPUTE<0x40+0x60*12,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*12-0x40>()
+    wnaf__12_points:
+        WNAF__COMPUTE<0x40+0x60*11,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*11-0x40>()
+    wnaf__11_points:
+        WNAF__COMPUTE<0x40+0x60*10,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*10-0x40>()
+    wnaf__10_points:
+        WNAF__COMPUTE<0x40+0x60*9,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*9-0x40>()
+    wnaf__9_points:
+        WNAF__COMPUTE<0x40+0x60*8,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*8-0x40>()
+    wnaf__8_points:
+        WNAF__COMPUTE<0x40+0x60*7,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*7-0x40>()
+    wnaf__7_points:
+        WNAF__COMPUTE<0x40+0x60*6,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*6-0x40>()
+    wnaf__6_points:
+        WNAF__COMPUTE<0x40+0x60*5,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*5-0x40>()
+    wnaf__5_points:
+        WNAF__COMPUTE<0x40+0x60*4,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*4-0x40>()
+    wnaf__4_points:
+        WNAF__COMPUTE<0x40+0x60*3,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*3-0x40>()
+    wnaf__3_points:
+        WNAF__COMPUTE<0x40+0x60*2,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH*2-0x40>()
+    wnaf__2_points:
+        WNAF__COMPUTE<0x40+0x60,PRECOMPUTE_TABLE_START+PRECOMPUTE_TABLE_LENGTH-0x40>()
+    wnaf__1_point:
+        WNAF__COMPUTE<0x40,PRECOMPUTE_TABLE_START-0x40>()
+
+    pop pop pop pop pop pop
+
+    // Store the number of points in the final WNAF entry at WNAF_START-0x20, as we'll
+    // be storing 0x200 at WNAF_START (see below).
+    WNAF_START() mload 0x20 WNAF_START() sub mstore
+
+    // Store 0x200 at WNAF_START so that when the final addition of the main loop is reached,
+    // we'll jump to main__final_add, the position of which will be stored at 0x200.
+    // (Basically, this is a trick for us to efficiently leave the main loop at the right moment)
+    0x200 WNAF_START() mstore
+}
+
