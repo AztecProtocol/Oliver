@@ -54,7 +54,7 @@ BabyJubJub._doubleProjectiveToExtended = function _doubleProjectiveToExtended({ 
 };
 
 BabyJubJub._addProjective = function _addProjective(
-    { x1, y1, z1 }, {x2, y2, z2 }
+    { x1, y1, z1 }, { x2, y2, z2 }
 ) {
     const A = z1.redMul(z2);
     const B = A.redSqr();
@@ -67,7 +67,7 @@ BabyJubJub._addProjective = function _addProjective(
     const y3 = A.redMul(G).redMul(D.redSub(a.redMul(C)));
     const z3 = F.redMul(G);
     return { x: x3, y: y3, z: z3 };
-}
+};
 
 BabyJubJub._addExtendedToProjective = function _addExtendedToProjective(
     { x1, y1, t1, z1 }, { x2, y2, t2, z2 }
@@ -187,6 +187,21 @@ BabyJubJub.randomPointInternal = () => {
 BabyJubJub.randomPoint = () => {
     const { x, y } = BabyJubJub.randomPointInternal();
     return { x: x.fromRed(), y: y.fromRed() };
+};
+
+BabyJubJub.randomPointExtended = () => {
+    let { x, y } = BabyJubJub.randomPointInternal();
+    let z = new BN(crypto.randomBytes(32), 16);
+    z = z.toRed(pRed);
+    const t = x.redMul(y).redMul(z);
+    x = x.redMul(z);
+    y = y.redMul(z);
+    return {
+        x: x.fromRed(),
+        y: y.fromRed(),
+        t: t.fromRed(),
+        z: z.fromRed(),
+    };
 };
 
 BabyJubJub.randomScalar = () => {
