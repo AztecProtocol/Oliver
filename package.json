@@ -37,6 +37,8 @@
     "url": "git+https://github.com/AztecProtocol/Oliver.git"
   },
   "scripts": {
-    "benchmark": "node ./benchmark.js"
+    "benchmark": "node ./benchmark.js",
+    "test": "mocha ./huff_tests/ --colors --exit --recursive --reporter spec --trace-warnings",
+    "lint": "eslint --ignore-path ./.eslintignore ."
   }
 }
