@@ -1,8 +1,7 @@
 const path = require('path');
 
-const BN = require('bn.js');
-const BabyJubJub = require('./bjj_reference.js');
 const { Runtime, getNewVM } = require('../huff/src/runtime.js');
+const BabyJubJub = require('./bjj_reference.js');
 
 const vm = getNewVM();
 
@@ -10,86 +9,76 @@ const pathToTestData = path.posix.resolve(__dirname, './huff_modules');
 
 const main = new Runtime('main_loop.huff', pathToTestData);
 
-async function testMultiplyNPoints(n) {
-    let points = [];
-    let scalars = [];
-    for (let i = 0; i < n; i += 1) {
-        points.push(BabyJubJub.randomPoint());
-        scalars.push(BabyJubJub.randomScalar());
-    }
-    let calldata = [];
-    for (let i = 0; i < n; i += 1) {
-        calldata.push({ index: i * 96, value: points[i].x });
-        calldata.push({ index: i * 96 + 32, value: points[i].y });
-        calldata.push({ index: i * 96 + 64, value: scalars[i] });
-    }
-    const data = await main(vm, 'OLIVER__MAIN', [], [], calldata, 0);
+async function runMainLoop(numPoints, numIterations) {
+    const iterations = [...new Array(numIterations)].map(() => {
+        const points = [...new Array(numPoints)].map(() => BabyJubJub.randomPoint());
+        const scalars = [...new Array(numPoints)].map(() => BabyJubJub.randomScalar());
 
-    const returnData = data.returnValue.toString('hex');
-    const result = BabyJubJub.toAffine({
-        x: new BN(returnData.slice(0, 64), 16),
-        y: new BN(returnData.slice(64, 128), 16),
-        z: new BN(returnData.slice(128, 192), 16),
+        const calldata = [...new Array(numPoints)].reduce((acc, x, i) => {
+            return [
+                ...acc,
+                { index: i * 3 * 32, value: points[i].x },
+                { index: (i * 3 + 1) * 32, value: points[i].y },
+                { index: (i * 3 + 2) * 32, value: scalars[i] },
+            ];
+        }, []);
+        return main(vm, 'OLIVER__MAIN', [], [], calldata);
     });
-    let expResult = { x: new BN(0), y: new BN(1), z: new BN(1) };
-    for (let i = 0; i < n; i += 1) {
-        const r = BabyJubJub.scalarMul(points[i], scalars[i]);
-        expResult = BabyJubJub.addProjective(
-            expResult.x, expResult.y, expResult.z,
-            r.x, r.y, r.z
-        );
-    }
-    expResult = BabyJubJub.toAffine(expResult);
-    // console.log(`JubJubread result: XYZ(0x${result.x.toString(16)}, 0x${result.y.toString(16)}, 1)`);
-    // console.log(`memory: ${Buffer.from(data.memory).toString('hex')}`);
-    // console.log(`stack: ${data.stack}`);
-    // console.log(`returned: ${data.returnValue.toString('hex')}`);
-    // console.log(`Gas used: ${data.gas}`);
-    // console.log(`Expected result: XYZ(0x${expResult.x.toString(16)}, 0x${expResult.y.toString(16)}, 1)`);
-    return {
-        gas: data.gas,
-        memory: data.memory,
-        passed: (result.x.eq(expResult.x) && result.y.eq(expResult.y)),
-        points,
-        scalars,
-    };
+    const results = await Promise.all(iterations);
+    const cumulativeGas = results.reduce((acc, { gas }) => {
+        return Number(acc) + Number(gas);
+    }, 0);
+    return Math.round(cumulativeGas / numIterations);
 }
 
-async function testN(n, numIterations) {
-    let totalGas = 0;
-    let allPassed = true;
-    for (let i = 0; i < numIterations; i += 1) {
-        const results = await testMultiplyNPoints(n);
-        totalGas += parseInt(results.gas, 10);
-        allPassed = allPassed && results.passed;
-        if (!results.passed) {
-            console.log(`Failed for points ${results.points.toString()} and scalars ${results.scalars.toString}`);
-        }
-    }
-    if (allPassed) {
-        console.log(`All ${numIterations} tests passed for ${n} points.`);
-    } else {
-        console.log(`Some of ${numIterations} tests failed for ${n} points.`);
-    }
-    console.log(`Average gas cost was ${totalGas / numIterations}, or ${totalGas / numIterations / n} per point.`);
+async function benchmark(i) {
+    let gas;
+    console.log(`Running scalar multi-exponentiation benchmarks over ${i} iterations`);
+
+    gas = await runMainLoop(1, i);
+    console.log(`average gas cost for 1 point:   ${gas} gas`);
+
+    gas = await runMainLoop(2, i);
+    console.log(`average gas cost for 2 points:  ${gas} gas`);
+
+    gas = await runMainLoop(3, i);
+    console.log(`average gas cost for 3 points:  ${gas} gas`);
+
+    gas = await runMainLoop(4, i);
+    console.log(`average gas cost for 4 points:  ${gas} gas`);
+
+    gas = await runMainLoop(5, i);
+    console.log(`average gas cost for 5 points:  ${gas} gas`);
+
+    gas = await runMainLoop(6, i);
+    console.log(`average gas cost for 6 points:  ${gas} gas`);
+
+    gas = await runMainLoop(7, i);
+    console.log(`average gas cost for 7 points:  ${gas} gas`);
+
+    gas = await runMainLoop(8, i);
+    console.log(`average gas cost for 8 points:  ${gas} gas`);
+
+    gas = await runMainLoop(9, i);
+    console.log(`average gas cost for 9 points:  ${gas} gas`);
+
+    gas = await runMainLoop(10, i);
+    console.log(`average gas cost for 10 points: ${gas} gas`);
+
+    gas = await runMainLoop(11, i);
+    console.log(`average gas cost for 11 points: ${gas} gas`);
+
+    gas = await runMainLoop(12, i);
+    console.log(`average gas cost for 12 points: ${gas} gas`);
+
+    gas = await runMainLoop(13, i);
+    console.log(`average gas cost for 13 points: ${gas} gas`);
+
+    gas = await runMainLoop(14, i);
+    console.log(`average gas cost for 14 points: ${gas} gas`);
+
+    gas = await runMainLoop(15, i);
+    console.log(`average gas cost for 15 points: ${gas} gas`);
 }
 
-async function runMainLoop(numIterations) {
-    await testN(1, numIterations);
-    await testN(2, numIterations);
-    await testN(3, numIterations);
-    await testN(4, numIterations);
-    await testN(5, numIterations);
-    await testN(6, numIterations);
-    await testN(7, numIterations);
-    await testN(8, numIterations);
-    await testN(9, numIterations);
-    await testN(10, numIterations);
-    await testN(11, numIterations);
-    await testN(12, numIterations);
-    await testN(13, numIterations);
-    await testN(14, numIterations);
-    await testN(15, numIterations);
-}
-
-runMainLoop(10).then(() => console.log('...fin'));
+benchmark(10).then(() => console.log('...fin'));
