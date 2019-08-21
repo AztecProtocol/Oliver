@@ -153,43 +153,11 @@ template <getP2,p4>
  *  T3 = E*H
  *  Z3 = F*G
  */
-template<mp1,mp2,mp3>
-#define macro ADD__PRECOMPUTE_DEPR = takes(0) returns(0) {
-    P() dup1 <mp1> 0x60 add mload <mp2> 0x40 add mload mulmod
-    // C p
-    dup2 <mp1> 0x40 add mload <mp2> 0x60 add mload mulmod
-    // D C p
-    dup2 dup2 add swap2
-    // C D E p
-    dup4 sub add dup3
-    // p H E p
-    dup1 <mp1> mload <mp2> mload mulmod
-    // A p H E p
-    dup2 <mp1> 0x20 add mload <mp2> 0x20 add mload mulmod
-    // B A p H E p
-    dup3 dup3 A() mulmod dup2 add
-    // G B A p H E p
-    swap2
-    // A B G p H E p
-    dup4 sub add
-    // B-A G p H E p
-    dup3 <mp2> mload <mp2> 0x20 add mload add
-    // y2+x2 p B-A G p H E p
-    <mp1> 0x20 add mload dup3 sub
-    // -y1 y2+x2 p B-A G p H E p
-    <mp1> mload add mulmod add
-    // F G p H E p
-    dup3 dup2 dup7 mulmod <mp3> mstore
-    dup3 dup3 dup6 mulmod <mp3> 0x20 add mstore
-    // F G p H E p
-    mulmod <mp3> 0x60 add mstore
-    mulmod <mp3> 0x40 add mstore
-}
 
 template<mp1_1,mp1_2,mp1_3,mp1_4,mp1_5,mp1_6,mp1_7,mp1_8,mp1_9,mp2>
 #define macro ADD__PRECOMPUTE = takes(0) returns(0) {
-    // (x z y p i)
-    P() dup1 <mp1_2> 0x60 add mload <mp2> 0x40 add mload mulmod
+    // i c p 2p
+    dup3 dup1 <mp1_2> 0x60 add mload <mp2> 0x40 add mload mulmod
     // C p
     dup2 <mp1_3> 0x40 add mload <mp2> 0x60 add mload mulmod
     // D C p
@@ -224,64 +192,6 @@ template<mp1_1,mp1_2,mp1_3,mp1_4,mp1_5,mp1_6,mp1_7,mp1_8,mp1_9,mp2>
  *  B = z1^2
  *  C = x1*x2
  *  D = y1*y2
- *  E = d*C*D
- *  F = B-E
- *  G = B+E
- *  X3 = z1*F*((x1+y1)*(x2+y2)-C-D)
- *  Y3 = z1*G*(D-a*C)
- *  Z3 = F*G
- */
-template <getP2,p3,2p8>
-#define macro ADD__PROJECTIVE = takes(3) returns(3) {
-    // x1 z1 y1
-    <p3>
-    // p x1 z1 y1
-    dup1 dup4 dup1 mulmod
-    // B p x1 z1 y1
-    dup2 <getP2>
-    // x2 y2 p B p x1 z1 y1
-    dup3 dup1 dup4 dup4 add
-    // x2+y2 p p x2 y2 p B p x1 z1 y1
-    swap4
-    // y2 p p x2 x2+y2 p B p x1 z1 y1
-    dup11 mulmod
-    // D p x2 x2+y2 p B p x1 z1 y1
-    swap2
-    // x2 p D x2+y2 p B p x1 z1 y1
-    dup8 mulmod
-    // C D x2+y2 p B p x1 z1 y1
-    dup4 dup1 swap4
-    // x2+y2 p C D p p B p x1 z1 y1
-    dup11 dup10 add mulmod
-    // (x1+y1)(x2+y2) C D p p B p x1 z1 y1
-    swap3 dup1
-    // p p C D T p B p x1 z1 y1
-    D() dup2 dup6 dup6 mulmod mulmod
-    // E p C D T p B p x1 z1 y1
-    dup1 dup3 sub dup8 add
-    // F E p C D T p B p x1 z1 y1
-    swap7 add
-    // G p C D T p F p x1 z1 y1
-    dup2 dup2 dup2 dup13
-    // z1 p G p G p C D T p F p x1 z1 y1
-    dup2 A() dup9 mulmod
-    // aC z1 p G p G p C D T p F p x1 z1 y1
-    dup3 sub dup9 add mulmod mulmod
-    // Y3 G p C D T p F p x1 z1 y1
-    swap11 pop
-    // G p C D T p F p x1 z1 Y3
-    dup7 mulmod swap7 pop
-    // C D T p F p Z3 z1 Y3
-    add <2p8> sub add
-    // T-C-D p F p Z3 z1 Y3
-    dup6 mulmod mulmod swap2 pop swap1
-    // X3 Z3 Y3
-}
-
-/*  Formulae:
- *  B = z1^2
- *  C = x1*x2
- *  D = y1*y2
  *  T = (x1+y1)*(x2+y2)
  *  E = d*C*D
  *  F = B-E
@@ -291,7 +201,7 @@ template <getP2,p3,2p8>
  *  Z3 = F*G
  */
 template<getP2,2p9>
-#define macro ADD__PROJECTIVE_NEW = takes(3) returns(3) {
+#define macro ADD__PROJECTIVE = takes(3) returns(3) {
     // x1 z1 y1    
     <getP2> // must return x2 p y2
     // x2 p y2 x1 z1 y1
@@ -339,61 +249,6 @@ template<getP2,2p9>
     // y3 z1 p (T-C-D) p z3 F
     swap6
     // F z1 p (T-C-D) p z3 y3
-    mulmod mulmod
-    // x3 z3 y3
-}
-
-template<p3,getP2z,getP2,2p9>
-#define macro ADD__PROJECTIVE_NON_AFFINE = takes(3) returns(3) {
-    // x1 z1 y1
-    <p3> 1 swap3 <getP2z> mulmod swap2 pop
-    // x1 A y1
-    <getP2> // must return x2 p y2
-    // x2 p y2 x1 A y1
-    dup2 dup1 dup8 dup7 add
-    // x1+y1 p p x2 p y2 x1 A y1
-    dup2 dup9 dup1 mulmod swap4
-    // x2 x1+y1 p p B p y2 x1 A y1
-    dup3 dup1 dup3 dup2 swap11
-    // x1 x2 p p x2 x1+y1 p p B p y2 p A y1
-    mulmod
-    // C p x2 x1+y1 p p B p y2 p A y1
-    swap11
-    // y1 p x2 x1+y1 p p B p y2 p A C
-    dup9 mulmod
-    // D x2 x1+y1 p p B p y2 p A C
-    swap7
-    // y2 x2 x1+y1 p p B p D p A C
-    add mulmod
-    // T p B p D p A C
-    dup5 dup9 add <2p9> sub add
-    // T-C-D p B p D p A C
-    swap4
-    // D p B p T-C-D p A C
-    dup2 dup1 dup10 dup2 dup5 D() mulmod mulmod
-    // E p D p B p T-C-D p A C
-    swap9
-    // C p D p B p T-C-D p A E
-    A() mulmod dup3 sub add
-    // D-a*C p B p T-C-D p A E
-    dup2 dup9 dup2 sub dup5 add
-    // F p D-a*C p B p T-C-D p A E
-    swap9
-    // E p D-a*C p B p T-C-D p A F
-    dup9 swap5
-    // B E p (D-a*C) p A p T-C-D p A F
-    add
-    // G p (D-a*C) p A p (T-C-D) p A F
-    dup2 dup2 dup12
-    // F G p G p (D-a*C) p A p (T-C-D) p A F
-    mulmod
-    // z3 G p (D-a*C) p A p (T-C-D) p A F
-    swap9
-    // A G p (D-a*C) p A p (T-C-D) p z3 F
-    mulmod mulmod
-    // y3 A p (T-C-D) p z3 F
-    swap6
-    // F A p (T-C-D) p z3 y3
     mulmod mulmod
     // x3 z3 y3
 }

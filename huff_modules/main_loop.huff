@@ -6,21 +6,21 @@
 #include "wnaf.huff"
 #include "validate.huff"
 
-#define macro GET_P_15 = takes(0) returns(3) { dup4 0x1e0 add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_14 = takes(0) returns(3) { dup4 0x1c0 add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_13 = takes(0) returns(3) { dup4 0x1a0 add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_12 = takes(0) returns(3) { dup4 0x180 add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_11 = takes(0) returns(3) { dup4 0x160 add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_10 = takes(0) returns(3) { dup4 0x140 add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_9  = takes(0) returns(3) { dup4 0x120 add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_8  = takes(0) returns(3) { dup4 0x100 add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_7  = takes(0) returns(3) { dup4 0xe0  add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_6  = takes(0) returns(3) { dup4 0xc0  add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_5  = takes(0) returns(3) { dup4 0xa0  add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_4  = takes(0) returns(3) { dup4 0x80  add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_3  = takes(0) returns(3) { dup4 0x60  add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_2  = takes(0) returns(3) { dup4 0x40  add mload dup6 dup2 0x20 add mload swap2 mload }
-#define macro GET_P_1  = takes(0) returns(3) { dup4 0x20  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_15 = takes(0) returns(3) { dup4 0x1e0 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_14 = takes(0) returns(3) { dup4 0x1c0 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_13 = takes(0) returns(3) { dup4 0x1a0 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_12 = takes(0) returns(3) { dup4 0x180 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_11 = takes(0) returns(3) { dup4 0x160 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_10 = takes(0) returns(3) { dup4 0x140 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_9  = takes(0) returns(3) { dup4 0x120 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_8  = takes(0) returns(3) { dup4 0x100 add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_7  = takes(0) returns(3) { dup4 0xe0  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_6  = takes(0) returns(3) { dup4 0xc0  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_5  = takes(0) returns(3) { dup4 0xa0  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_4  = takes(0) returns(3) { dup4 0x80  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_3  = takes(0) returns(3) { dup4 0x60  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_2  = takes(0) returns(3) { dup4 0x40  add mload dup6 dup2 0x20 add mload swap2 mload }
+#define macro MAIN__GET_P_1  = takes(0) returns(3) { dup4 0x20  add mload dup6 dup2 0x20 add mload swap2 mload }
 
 #define jumptable MAIN__ADDITION_JUMP_TABLE {
     add_0  add_1  add_2  add_3  add_4
@@ -86,35 +86,35 @@
     dup4 mload mload jump
     
     add_15:
-        ADD__PROJECTIVE_NEW<GET_P_15,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_15,dup12>()
     add_14:
-        ADD__PROJECTIVE_NEW<GET_P_14,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_14,dup12>()
     add_13:
-        ADD__PROJECTIVE_NEW<GET_P_13,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_13,dup12>()
     add_12:
-        ADD__PROJECTIVE_NEW<GET_P_12,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_12,dup12>()
     add_11:
-        ADD__PROJECTIVE_NEW<GET_P_11,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_11,dup12>()
     add_10:
-        ADD__PROJECTIVE_NEW<GET_P_10,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_10,dup12>()
     add_9:
-        ADD__PROJECTIVE_NEW<GET_P_9,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_9,dup12>()
     add_8:
-        ADD__PROJECTIVE_NEW<GET_P_8,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_8,dup12>()
     add_7:
-        ADD__PROJECTIVE_NEW<GET_P_7,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_7,dup12>()
     add_6:
-        ADD__PROJECTIVE_NEW<GET_P_6,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_6,dup12>()
     add_5:
-        ADD__PROJECTIVE_NEW<GET_P_5,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_5,dup12>()
     add_4:
-        ADD__PROJECTIVE_NEW<GET_P_4,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_4,dup12>()
     add_3:
-        ADD__PROJECTIVE_NEW<GET_P_3,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_3,dup12>()
     add_2:
-        ADD__PROJECTIVE_NEW<GET_P_2,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_2,dup12>()
     add_1:
-        ADD__PROJECTIVE_NEW<GET_P_1,dup12>()
+        ADD__PROJECTIVE<MAIN__GET_P_1,dup12>()
     add_0:
         DOUBLE__PROJECTIVE<dup5,dup6,dup9>()
 
@@ -153,35 +153,35 @@
         0x20 WNAF_START() sub mload mload jump
 
         final_add_15:
-            ADD__PROJECTIVE_NEW<GET_P_15,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_15,dup12>()
         final_add_14:
-            ADD__PROJECTIVE_NEW<GET_P_14,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_14,dup12>()
         final_add_13:
-            ADD__PROJECTIVE_NEW<GET_P_13,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_13,dup12>()
         final_add_12:
-            ADD__PROJECTIVE_NEW<GET_P_12,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_12,dup12>()
         final_add_11:
-            ADD__PROJECTIVE_NEW<GET_P_11,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_11,dup12>()
         final_add_10:
-            ADD__PROJECTIVE_NEW<GET_P_10,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_10,dup12>()
         final_add_9:
-            ADD__PROJECTIVE_NEW<GET_P_9,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_9,dup12>()
         final_add_8:
-            ADD__PROJECTIVE_NEW<GET_P_8,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_8,dup12>()
         final_add_7:
-            ADD__PROJECTIVE_NEW<GET_P_7,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_7,dup12>()
         final_add_6:
-            ADD__PROJECTIVE_NEW<GET_P_6,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_6,dup12>()
         final_add_5:
-            ADD__PROJECTIVE_NEW<GET_P_5,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_5,dup12>()
         final_add_4:
-            ADD__PROJECTIVE_NEW<GET_P_4,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_4,dup12>()
         final_add_3:
-            ADD__PROJECTIVE_NEW<GET_P_3,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_3,dup12>()
         final_add_2:
-            ADD__PROJECTIVE_NEW<GET_P_2,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_2,dup12>()
         final_add_1:
-            ADD__PROJECTIVE_NEW<GET_P_1,dup12>()
+            ADD__PROJECTIVE<MAIN__GET_P_1,dup12>()
         final_add_0:
 
         0x00 mstore
@@ -189,41 +189,4 @@
         0x20 mstore
         pop pop pop pop
         0x60 0x00 return
-}
-
-#define macro NAIVE_GET_P = takes(0) returns(0) {
-    // 6 things on stack before i: . . . x z y i . P 2P
-    dup7 0x60 mul 0x20 add calldataload
-    dup8 0x60 mul calldataload
-}
-
-#define macro OLIVER__MAIN_NAIVE = takes(0) returns(0) {
-    VALIDATE__CALLVALUE_AND_INPUT_SIZE()
-    0x60 FUNCTION_SIGNATURE_OFFSET() calldatasize sub div
-    NUM_POINTS_LOC() mstore
-    2P()
-    P()
-    255
-    0
-    1 1 0
-    
-    naive_main_loop:
-    DOUBLE__PROJECTIVE<dup6,dup7,dup10>()
-    naive_next_point:
-    dup4 0x60 mul 0x40 add calldataload dup6 shr 1 and iszero naive_skip_add jumpi
-    ADD__PROJECTIVE<NAIVE_GET_P,dup6,dup12>()
-    naive_skip_add:
-    swap3 1 add swap3
-    dup4 GET_NUMBER_OF_POINTS() gt naive_next_point jumpi
-    swap4 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff add swap4
-    dup5 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff eq naive_finish jumpi
-    swap3 pop 0 swap3
-    naive_main_loop jump
-
-    naive_finish:
-    0x00 mstore
-    0x40 mstore
-    0x20 mstore
-    0x60 0x00 return
-
 }
