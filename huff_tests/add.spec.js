@@ -119,4 +119,24 @@ describe('BabyJubJub point addition', function describe() {
         expect(mload(returnStr, 0x20).toRed(pRed).redMul(mload(returnStr, 0x40).toRed(pRed).redInvm()).fromRed()
             .eq(expResult.y.fromRed())).to.equal(true);
     });
+
+    it('macro ADD__PROJECTIVE can double points in projective coordinates (!)', async () => {
+        const p2 = BabyJubJub.randomPointExtended();
+        const p1 = BabyJubJub.toAffine(p2);
+        const calldata = [
+            { index: 0, value: p1.x },
+            { index: 32, value: p1.y },
+            { index: 64, value: p2.x },
+            { index: 96, value: p2.y },
+            { index: 128, value: p2.z },
+        ];
+        const expResult = referenceCurve.point(p1.x, p1.y).add(referenceCurve.point(p2.x, p2.y, p2.z)).normalize();
+        const { returnValue, stack } = await add(vm, 'ADD__PROJECTIVE_TEST', [], [], calldata);
+        const returnStr = Buffer.from(returnValue).toString('hex');
+        expect(stack.length).to.equal(1);
+        expect(mload(returnStr, 0x00).toRed(pRed).redMul(mload(returnStr, 0x40).toRed(pRed).redInvm()).fromRed()
+            .eq(expResult.x.fromRed())).to.equal(true);
+        expect(mload(returnStr, 0x20).toRed(pRed).redMul(mload(returnStr, 0x40).toRed(pRed).redInvm()).fromRed()
+            .eq(expResult.y.fromRed())).to.equal(true);
+    });
 });
