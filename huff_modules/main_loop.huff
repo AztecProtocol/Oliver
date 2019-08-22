@@ -63,23 +63,7 @@
     1 1 0
     // x z y w p 2p
 
-    add_0 0x00 mstore
-    add_1 0x20 mstore
-    add_2 0x40 mstore
-    add_3 0x60 mstore
-    add_4 0x80 mstore
-    add_5 0xa0 mstore
-    add_6 0xc0 mstore
-    add_7 0xe0 mstore
-    add_8 0x100 mstore
-    add_9 0x120 mstore
-    add_10 0x140 mstore
-    add_11 0x160 mstore
-    add_12 0x180 mstore
-    add_13 0x1a0 mstore
-    add_14 0x1c0 mstore
-    add_15 0x1e0 mstore
-    main__final_add 0x200 mstore
+    __tablesize(MAIN__ADDITION_JUMP_TABLE) __tablestart(MAIN__ADDITION_JUMP_TABLE) 0x00 codecopy
 
     // jump to add_n, the location of which is stored at mload(w)
     // dup4 mload mload jump
@@ -130,22 +114,7 @@
     // We handle the final addition separately, as we don't want it to be followed by a double
     main__final_add:
         
-        final_add_0 0x00 mstore
-        final_add_1 0x20 mstore
-        final_add_2 0x40 mstore
-        final_add_3 0x60 mstore
-        final_add_4 0x80 mstore
-        final_add_5 0xa0 mstore
-        final_add_6 0xc0 mstore
-        final_add_7 0xe0 mstore
-        final_add_8 0x100 mstore
-        final_add_9 0x120 mstore
-        final_add_10 0x140 mstore
-        final_add_11 0x160 mstore
-        final_add_12 0x180 mstore
-        final_add_13 0x1a0 mstore
-        final_add_14 0x1c0 mstore
-        final_add_15 0x1e0 mstore
+        __tablesize(MAIN__FINAL_ADDITION_JUMP_TABLE) __tablestart(MAIN__FINAL_ADDITION_JUMP_TABLE) 0x00 codecopy
         
         // x z y w p 2p
         // Unlike for the other digits, the number of points to add for the last digit is stored at WNAF_START+0x20
