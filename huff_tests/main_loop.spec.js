@@ -56,7 +56,7 @@ describe('Oliver main loop', function describe() {
             x: new BN(returnValueStr.slice(0, 64), 16),
             y: new BN(returnValueStr.slice(64, 128), 16),
             z: new BN(returnValueStr.slice(128, 192), 16),
-        }.then(console.log()));
+        });
 
         expect(returnValueStr.length).to.equal(192);
         expect(stack.length).to.equal(0);
