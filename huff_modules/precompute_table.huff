@@ -13,19 +13,19 @@
     swap1 dup5 0x60 add mstore
     mulmod dup2 0x40 add mstore
     // i
-    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 3P
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC,P2_LOC+0x20,P2_LOC+0x40,P2_LOC+0x60>() // 3P
     0x80 add
-    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 5P
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC,P2_LOC+0x20,P2_LOC+0x40,P2_LOC+0x60>() // 5P
     0x80 add
-    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 7P
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC,P2_LOC+0x20,P2_LOC+0x40,P2_LOC+0x60>() // 7P
     0x80 add
-    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 9P
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC,P2_LOC+0x20,P2_LOC+0x40,P2_LOC+0x60>() // 9P
     0x80 add
-    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 11P
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC,P2_LOC+0x20,P2_LOC+0x40,P2_LOC+0x60>() // 11P
     0x80 add
-    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 13P
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC,P2_LOC+0x20,P2_LOC+0x40,P2_LOC+0x60>() // 13P
     0x80 add
-    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>() // 15P
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC,P2_LOC+0x20,P2_LOC+0x40,P2_LOC+0x60>() // 15P
 }
 
 template<pointNum1,pointNum2>

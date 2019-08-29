@@ -154,20 +154,20 @@ template <getP2,p4>
  *  Z3 = F*G
  */
 
-template<mp1_1,mp1_2,mp1_3,mp1_4,mp1_5,mp1_6,mp1_7,mp1_8,mp1_9,mp2>
+template<mp1_1,mp1_2,mp1_3,mp1_4,mp1_5,mp1_6,mp1_7,mp1_8,mp1_9,mp2x,mp2y,mp2t,mp2z>
 #define macro ADD__PRECOMPUTE = takes(0) returns(0) {
     // i c p 2p
-    dup3 dup1 <mp1_2> 0x60 add mload <mp2> 0x40 add mload mulmod
+    dup3 dup1 <mp1_2> 0x60 add mload <mp2t> mload mulmod
     // C p
-    dup2 <mp1_3> 0x40 add mload <mp2> 0x60 add mload mulmod
+    dup2 <mp1_3> 0x40 add mload <mp2z> mload mulmod
     // D C p
     dup2 dup2 add swap2
     // C D E p
     dup4 sub add dup3
     // p H E p
-    dup1 <mp1_5> mload <mp2> mload mulmod
+    dup1 <mp1_5> mload <mp2x> mload mulmod
     // A p H E p
-    dup2 <mp1_6> 0x20 add mload <mp2> 0x20 add mload mulmod
+    dup2 <mp1_6> 0x20 add mload <mp2y> mload mulmod
     // B A p H E p
     dup3 dup3 A() mulmod dup2 add
     // G B A p H E p
@@ -175,7 +175,7 @@ template<mp1_1,mp1_2,mp1_3,mp1_4,mp1_5,mp1_6,mp1_7,mp1_8,mp1_9,mp2>
     // A B G p H E p
     dup4 sub add
     // B-A G p H E p
-    dup3 <mp2> mload <mp2> 0x20 add mload add
+    dup3 <mp2x> mload <mp2y> mload add
     // y2+x2 p B-A G p H E p
     <mp1_8> 0x20 add mload dup3 sub
     // -y1 y2+x2 p B-A G p H E p

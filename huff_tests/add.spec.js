@@ -33,7 +33,7 @@ const helperMacros = `
     0xa0 calldataload PRECOMPUTE_TABLE_START() 0x20 add mstore
     0xc0 calldataload PRECOMPUTE_TABLE_START() 0x40 add mstore
     0xe0 calldataload PRECOMPUTE_TABLE_START() 0x60 add mstore
-    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC>()
+    ADD__PRECOMPUTE<dup2,dup3,dup4,dup5,dup6,dup7,dup8,dup9,dup10,P2_LOC,P2_LOC+0x20,P2_LOC+0x40,P2_LOC+0x60>()
     0x80 PRECOMPUTE_TABLE_START() 0x80 add return
 }
 
