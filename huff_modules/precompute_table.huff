@@ -180,31 +180,31 @@ template<pointNum1,pointNum2>
     // Then, multiply it by (gz_P_1 * ... * gz_P_(m-1))
     dup5 0x20 mul mload jump
     point_14:
-        SCALAR_TABLE_START() 0x1a0 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x1a0>() mload dup7 swap2 mulmod
     point_13:
-        SCALAR_TABLE_START() 0x180 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x180>() mload dup7 swap2 mulmod
     point_12:
-        SCALAR_TABLE_START() 0x160 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x160>() mload dup7 swap2 mulmod
     point_11:
-        SCALAR_TABLE_START() 0x140 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x140>() mload dup7 swap2 mulmod
     point_10:
-        SCALAR_TABLE_START() 0x120 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x120>() mload dup7 swap2 mulmod
     point_9:
-        SCALAR_TABLE_START() 0x100 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x100>() mload dup7 swap2 mulmod
     point_8:
-        SCALAR_TABLE_START() 0xe0 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0xe0>() mload dup7 swap2 mulmod
     point_7:
-        SCALAR_TABLE_START() 0xc0 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0xc0>() mload dup7 swap2 mulmod
     point_6:
-        SCALAR_TABLE_START() 0xa0 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0xa0>() mload dup7 swap2 mulmod
     point_5:
-        SCALAR_TABLE_START() 0x80 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x80>() mload dup7 swap2 mulmod
     point_4:
-        SCALAR_TABLE_START() 0x60 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x60>() mload dup7 swap2 mulmod
     point_3:
-        SCALAR_TABLE_START() 0x40 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x40>() mload dup7 swap2 mulmod
     point_2:
-        SCALAR_TABLE_START() 0x20 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x20>() mload dup7 swap2 mulmod
     point_1:
         SCALAR_TABLE_START() mload dup7 swap2 mulmod
     point_0:
@@ -218,33 +218,33 @@ template<pointNum1,pointNum2>
 
     // zzz i- i+ i c
     _point_14:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x1c0 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x1c0>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_13:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x1a0 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x1a0>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_12:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x180 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x180>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_11:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x160 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x160>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_10:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x140 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x140>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_9:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x120 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x120>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_8:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x100 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x100>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_7:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0xe0 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0xe0>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_6:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0xc0 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0xc0>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_5:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0xa0 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0xa0>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_4:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x80 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x80>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_3:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x60 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x60>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_2:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x40 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x40>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_1:
-        SCALAR_TABLE_START() dup6 0x20 mul add 0x20 add mload dup7 swap2 mulmod
+        LITERAL<SCALAR_TABLE_START+0x20>() dup6 0x20 mul add mload dup7 swap2 mulmod
     _point_0:
 
     // Thus we have Z_INV * gz_P_1 * ... * gz_P_(m-1) * gz_P_(m+1) * ... * gz_P_n

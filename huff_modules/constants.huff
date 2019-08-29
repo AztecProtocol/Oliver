@@ -11,6 +11,11 @@
 
 #define macro SCALAR_TABLE_START = takes(0) returns(1) { 0x200 }
 
+template<X>
+#define macro LITERAL = takes(0) returns(1) {
+    <X>
+}
+
 #define macro PRECOMPUTE_TABLE_START = takes(0) returns(1) {
     0x460
 }
