@@ -36,49 +36,49 @@ async function benchmark(i) {
     console.log(`Running scalar multi-exponentiation benchmarks over ${i} iterations`);
 
     gas = await runMainLoop(1, i);
-    console.log(`average gas cost for 1 point:   ${gas} gas`);
+    console.log(`average gas cost for 1 point:   ${gas}  gas, or ${gas} gas per point`);
 
     gas = await runMainLoop(2, i);
-    console.log(`average gas cost for 2 points:  ${gas} gas`);
+    console.log(`average gas cost for 2 points:  ${gas} gas, or ${Math.round(gas / 2)} gas per point`);
 
     gas = await runMainLoop(3, i);
-    console.log(`average gas cost for 3 points:  ${gas} gas`);
+    console.log(`average gas cost for 3 points:  ${gas} gas, or ${Math.round(gas / 3)} gas per point`);
 
     gas = await runMainLoop(4, i);
-    console.log(`average gas cost for 4 points:  ${gas} gas`);
+    console.log(`average gas cost for 4 points:  ${gas} gas, or ${Math.round(gas / 4)} gas per point`);
 
     gas = await runMainLoop(5, i);
-    console.log(`average gas cost for 5 points:  ${gas} gas`);
+    console.log(`average gas cost for 5 points:  ${gas} gas, or ${Math.round(gas / 5)} gas per point`);
 
     gas = await runMainLoop(6, i);
-    console.log(`average gas cost for 6 points:  ${gas} gas`);
+    console.log(`average gas cost for 6 points:  ${gas} gas, or ${Math.round(gas / 6)} gas per point`);
 
     gas = await runMainLoop(7, i);
-    console.log(`average gas cost for 7 points:  ${gas} gas`);
+    console.log(`average gas cost for 7 points:  ${gas} gas, or ${Math.round(gas / 7)} gas per point`);
 
     gas = await runMainLoop(8, i);
-    console.log(`average gas cost for 8 points:  ${gas} gas`);
+    console.log(`average gas cost for 8 points:  ${gas} gas, or ${Math.round(gas / 8)} gas per point`);
 
     gas = await runMainLoop(9, i);
-    console.log(`average gas cost for 9 points:  ${gas} gas`);
+    console.log(`average gas cost for 9 points:  ${gas} gas, or ${Math.round(gas / 9)} gas per point`);
 
     gas = await runMainLoop(10, i);
-    console.log(`average gas cost for 10 points: ${gas} gas`);
+    console.log(`average gas cost for 10 points: ${gas} gas, or ${Math.round(gas / 10)} gas per point`);
 
     gas = await runMainLoop(11, i);
-    console.log(`average gas cost for 11 points: ${gas} gas`);
+    console.log(`average gas cost for 11 points: ${gas} gas, or ${Math.round(gas / 11)} gas per point`);
 
     gas = await runMainLoop(12, i);
-    console.log(`average gas cost for 12 points: ${gas} gas`);
+    console.log(`average gas cost for 12 points: ${gas} gas, or ${Math.round(gas / 12)} gas per point`);
 
     gas = await runMainLoop(13, i);
-    console.log(`average gas cost for 13 points: ${gas} gas`);
+    console.log(`average gas cost for 13 points: ${gas} gas, or ${Math.round(gas / 13)} gas per point`);
 
     gas = await runMainLoop(14, i);
-    console.log(`average gas cost for 14 points: ${gas} gas`);
+    console.log(`average gas cost for 14 points: ${gas} gas, or ${Math.round(gas / 14)} gas per point`);
 
     gas = await runMainLoop(15, i);
-    console.log(`average gas cost for 15 points: ${gas} gas`);
+    console.log(`average gas cost for 15 points: ${gas} gas, or ${Math.round(gas / 15)} gas per point`);
 }
 
-benchmark(10).then(() => console.log('...fin'));
+benchmark(25).then(() => console.log('...fin'));
