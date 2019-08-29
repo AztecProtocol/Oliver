@@ -6,7 +6,7 @@ const EC = require('elliptic');
 const path = require('path');
 
 const { Runtime, getNewVM } = require('../../huff/src/runtime.js');
-const BabyJubJub = require('../bjj_reference');
+const BabyJubJub = require('../js_snippets/bjj_reference');
 
 const vm = getNewVM();
 
