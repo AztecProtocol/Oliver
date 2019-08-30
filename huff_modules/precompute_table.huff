@@ -317,7 +317,7 @@ template<pointNum1,pointNum2>
         PRECOMPUTE_TABLE_START() dup2 PRECOMPUTE_TABLE_LENGTH() mul add
         dup3
         // p i c
-        0x60 dup4 mul 0x20 add FUNCTION_SIGNATURE_OFFSET() add calldataload
+        0x60 dup4 mul LITERAL<0x20+FUNCTION_SIGNATURE_OFFSET>() add calldataload
         1
         0x60 dup6 mul FUNCTION_SIGNATURE_OFFSET() add calldataload
         // x 1 y p i c

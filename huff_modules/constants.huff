@@ -6,7 +6,7 @@
 
 #define macro NUM_POINTS_LOC = takes(0) returns(1) { 0x400 }
 #define macro WNAF_START_LOC = takes(0) returns(1) { 0x420 }
-#define macro P2_LOC = takes(0) returns(1) { 0x00 } // occupies 0x60-0xe0
+#define macro P2_LOC = takes(0) returns(1) { 0x00 }
 #define macro Z_INV_LOC = takes(0) returns(1) { 0x440 }
 
 #define macro SCALAR_TABLE_START = takes(0) returns(1) { 0x200 }
